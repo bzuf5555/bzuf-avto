@@ -5,6 +5,7 @@ const carService = require('../services/carService');
 const formatter = require('../utils/formatter');
 const { isValidPlate, extractPlateFromText, normalizePlate, extractMultiplePlates } = require('../utils/validator');
 const { t, getLang } = require('../utils/i18n');
+const User = require('../models/User');
 const logger = require('../utils/logger');
 
 async function handleText(ctx) {
@@ -97,4 +98,45 @@ function buildKeyboard(plateNumber, data, lang = 'uz') {
   ]);
 }
 
-module.exports = { handleText, buildKeyboard };
+async function handleContact(ctx) {
+  const contact = ctx.message.contact;
+  if (!contact) return;
+
+  const lang = getLang(ctx.dbUser);
+  const name = ctx.from.first_name || (lang === 'ru' ? 'Друг' : 'Do\'stim');
+
+  // Faqat o'z kontaktini qabul qilamiz
+  if (contact.user_id && contact.user_id !== ctx.from.id) {
+    return ctx.replyWithHTML(
+      lang === 'ru'
+        ? '❌ Пожалуйста, поделитесь своим номером телефона, а не чужим.'
+        : '❌ Iltimos, o\'z telefon raqamingizni ulashing.',
+      Markup.removeKeyboard()
+    );
+  }
+
+  try {
+    await User.findOneAndUpdate(
+      { telegramId: ctx.from.id },
+      { phoneNumber: contact.phone_number, phoneSharedAt: new Date() }
+    );
+    if (ctx.dbUser) {
+      ctx.dbUser.phoneNumber = contact.phone_number;
+    }
+
+    logger.info(`Telefon saqlandi: ${ctx.from.id} → ${contact.phone_number}`);
+
+    await ctx.replyWithHTML(
+      t('phoneReceived', lang, name),
+      Markup.removeKeyboard()
+    );
+
+    // Welcome xabarini ham ko'rsatish
+    await ctx.replyWithHTML(t('welcome', lang, name));
+  } catch (error) {
+    logger.error('handleContact xatosi:', error.message);
+    await ctx.reply(t('error', lang), Markup.removeKeyboard());
+  }
+}
+
+module.exports = { handleText, handleContact, buildKeyboard };

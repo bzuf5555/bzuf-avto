@@ -11,6 +11,8 @@ const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, default: null },
   languageCode: { type: String, default: 'uz' },
+  phoneNumber: { type: String, default: null },
+  phoneSharedAt: { type: Date, default: null },
   isBlocked: { type: Boolean, default: false },
   queryCount: { type: Number, default: 0 },
   lastQueryAt: { type: Date, default: null },

@@ -1,5 +1,6 @@
 'use strict';
 
+const { Markup } = require('telegraf');
 const carService = require('../services/carService');
 const formatter = require('../utils/formatter');
 const { isValidPlate, normalizePlate } = require('../utils/validator');
@@ -13,7 +14,19 @@ const ADMIN_IDS = (process.env.ADMIN_IDS || '').split(',').map(Number).filter(Bo
 async function start(ctx) {
   const lang = getLang(ctx.dbUser);
   const name = ctx.from.first_name || (lang === 'ru' ? 'Друг' : 'Do\'stim');
-  await ctx.replyWithHTML(t('welcome', lang, name));
+
+  // Telefon raqam allaqachon saqlangan — oddiy welcome
+  if (ctx.dbUser && ctx.dbUser.phoneNumber) {
+    return ctx.replyWithHTML(t('welcome', lang, name));
+  }
+
+  // Telefon raqam so'rash
+  await ctx.replyWithHTML(
+    t('phoneRequest', lang),
+    Markup.keyboard([[Markup.button.contactRequest(t('phoneButton', lang))]])
+      .oneTime()
+      .resize()
+  );
 }
 
 async function help(ctx) {

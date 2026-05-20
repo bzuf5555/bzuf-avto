@@ -58,6 +58,14 @@ const messages = {
     watchLimit: `⚠️ Maksimal 5 ta raqam kuzatish mumkin.`,
     watchInvalidPlate: `❌ Noto'g'ri davlat raqami formati.`,
 
+    phoneRequest:
+      `📱 <b>Telefon raqamingizni ulashing</b>\n\n` +
+      `Botdan foydalanish uchun telefon raqamingizni bir marta ulashish kerak.\n` +
+      `Quyidagi tugmani bosing:`,
+    phoneButton: `📱 Raqamni ulashish`,
+    phoneReceived: (name) =>
+      `✅ Rahmat, <b>${name}</b>! Raqamingiz saqlandi.\n\n` +
+      `Endi botdan to'liq foydalanishingiz mumkin 🚗`,
     langChanged: `✅ Til o'zgartirildi: <b>O'zbek tili</b> 🇺🇿`,
     langSelect:
       `🌐 <b>Tilni tanlang / Выберите язык</b>\n\n` +
@@ -169,6 +177,14 @@ const messages = {
     watchLimit: `⚠️ Можно отслеживать максимум 5 номеров.`,
     watchInvalidPlate: `❌ Неверный формат номера автомобиля.`,
 
+    phoneRequest:
+      `📱 <b>Поделитесь номером телефона</b>\n\n` +
+      `Для использования бота нужно один раз поделиться номером телефона.\n` +
+      `Нажмите кнопку ниже:`,
+    phoneButton: `📱 Поделиться номером`,
+    phoneReceived: (name) =>
+      `✅ Спасибо, <b>${name}</b>! Ваш номер сохранён.\n\n` +
+      `Теперь вы можете пользоваться ботом 🚗`,
     langChanged: `✅ Язык изменён: <b>Русский язык</b> 🇷🇺`,
     langSelect:
       `🌐 <b>Tilni tanlang / Выберите язык</b>\n\n` +

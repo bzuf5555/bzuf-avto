@@ -28,6 +28,7 @@ bot.command('stats', commandHandler.stats);
 bot.command('users', commandHandler.users);
 bot.command('broadcast', commandHandler.broadcast);
 
+bot.on('contact', messageHandler.handleContact);
 bot.on('text', messageHandler.handleText);
 bot.on('callback_query', callbackHandler.handleCallback);
 
