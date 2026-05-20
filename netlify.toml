@@ -10,12 +10,14 @@
 [functions]
   node_bundler = "esbuild"
   included_files = ["src/**"]
-  # Netlify max timeout (26s) — bot handler ichida 9s limit ishlatiladi
+
+[functions."bot"]
   timeout = 26
 
-# TASK-008: Kunlik eslatma — har kuni 09:00 UTC = 14:00 Toshkent vaqti
+# Kunlik eslatma — har kuni 09:00 UTC = 14:00 Toshkent vaqti
 [functions."notifications"]
   schedule = "0 9 * * *"
+  timeout = 26
 
 [[headers]]
   for = "/.netlify/functions/*"
