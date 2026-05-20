@@ -7,11 +7,11 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "dev": "netlify dev",
-    "start": "netlify dev",
+    "start": "node src/polling.js",
+    "dev": "node src/polling.js",
+    "netlify": "netlify dev",
     "setup": "node scripts/setup.js",
-    "test": "echo \"Tests pending\" && exit 0",
-    "lint": "eslint src/ netlify/"
+    "test": "echo \"Tests pending\" && exit 0"
   },
   "dependencies": {
     "telegraf": "^4.16.3",
