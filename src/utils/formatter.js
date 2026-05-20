@@ -91,6 +91,48 @@ function formatTechInspection(techData) {
   return text;
 }
 
+function formatTonirovka(tonirovkaData) {
+  if (!tonirovkaData || tonirovkaData.error) {
+    return '⚠️ <i>Tonirovka ma\'lumotlarini olishda xato</i>';
+  }
+
+  let text = '🪟 <b>Tonirovka ruxsatnomasi</b>\n\n';
+
+  if (!tonirovkaData.expiryDate) {
+    text += '❓ Ma\'lumot topilmadi\n';
+    return text;
+  }
+
+  const now = new Date();
+  const expiry = new Date(tonirovkaData.expiryDate);
+  const daysLeft = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
+
+  text += `📅 Muddati: <b>${formatDate(tonirovkaData.expiryDate)}</b>\n`;
+
+  if (daysLeft < 0) {
+    text += `❌ Muddati <b>${Math.abs(daysLeft)} kun</b> oldin o'tgan!\n`;
+  } else if (daysLeft <= 30) {
+    text += `⚠️ Muddatga <b>${daysLeft} kun</b> qoldi\n`;
+  } else {
+    text += `✅ Amal qilish muddati: <b>${daysLeft} kun</b>\n`;
+  }
+
+  if (tonirovkaData.issueDate) {
+    text += `📋 Berilgan sana: ${formatDate(tonirovkaData.issueDate)}\n`;
+  }
+  if (tonirovkaData.lightTransmission) {
+    text += `💡 Yorug'lik o'tkazuvchanligi: <b>${tonirovkaData.lightTransmission}%</b>\n`;
+  }
+  if (tonirovkaData.issuedBy) {
+    text += `🏢 Berilgan joy: ${tonirovkaData.issuedBy}\n`;
+  }
+  if (tonirovkaData.certificateNumber) {
+    text += `🔢 Raqam: <code>${tonirovkaData.certificateNumber}</code>\n`;
+  }
+
+  return text;
+}
+
 function formatFullReport(plateNumber, data) {
   const timestamp = new Date().toLocaleString('uz-UZ', {
     timeZone: 'Asia/Tashkent',
@@ -116,6 +158,8 @@ function formatFullReport(plateNumber, data) {
   report += formatTax(data.tax) + '\n';
   report += '━━━━━━━━━━━━━━━━━━━━\n';
   report += formatTechInspection(data.techInspection) + '\n';
+  report += '━━━━━━━━━━━━━━━━━━━━\n';
+  report += formatTonirovka(data.tonirovka) + '\n';
   report += '━━━━━━━━━━━━━━━━━━━━\n';
   report += '<i>📊 Ma\'lumotlar davlat bazalaridan olingan</i>';
 
@@ -145,6 +189,7 @@ module.exports = {
   formatFines,
   formatTax,
   formatTechInspection,
+  formatTonirovka,
   formatFullReport,
   formatAmount,
   formatDate,

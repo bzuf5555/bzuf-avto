@@ -3,6 +3,7 @@
 const fineAgent = require('../agents/fineAgent');
 const taxAgent = require('../agents/taxAgent');
 const techInspectionAgent = require('../agents/techInspectionAgent');
+const tonirovkaAgent = require('../agents/tonirovkaAgent');
 const cacheAgent = require('../agents/cacheAgent');
 const Query = require('../models/Query');
 const logger = require('../utils/logger');
@@ -20,10 +21,11 @@ class CarService {
 
     try {
       // Barcha agentlarni parallel ishga tushirish — tezlikni oshiradi
-      const [fines, tax, techInspection] = await Promise.allSettled([
+      const [fines, tax, techInspection, tonirovka] = await Promise.allSettled([
         fineAgent.getFines(plateNumber),
         taxAgent.getTaxDebt(plateNumber),
         techInspectionAgent.getTechInspection(plateNumber),
+        tonirovkaAgent.getTonirovka(plateNumber),
       ]);
 
       const result = {
@@ -31,6 +33,7 @@ class CarService {
         fines: fines.status === 'fulfilled' ? fines.value : { error: true },
         tax: tax.status === 'fulfilled' ? tax.value : { error: true },
         techInspection: techInspection.status === 'fulfilled' ? techInspection.value : { error: true },
+        tonirovka: tonirovka.status === 'fulfilled' ? tonirovka.value : { error: true },
       };
 
       const responseTimeMs = Date.now() - startTime;
@@ -62,6 +65,10 @@ class CarService {
 
   async getTechInspection(plateNumber) {
     return techInspectionAgent.getTechInspection(plateNumber);
+  }
+
+  async getTonirovka(plateNumber) {
+    return tonirovkaAgent.getTonirovka(plateNumber);
   }
 
   async refreshCache(plateNumber) {

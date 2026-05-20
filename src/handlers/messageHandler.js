@@ -55,15 +55,17 @@ function buildKeyboard(plateNumber, data) {
   const fineCount = data.fines?.fines?.length || 0;
   const taxDebt = data.tax?.totalDebt || 0;
   const techValid = data.techInspection?.isValid;
+  const tonirovkaValid = data.tonirovka?.isValid;
 
   const fineLabel = fineCount > 0 ? `🚨 Jarimalar (${fineCount})` : '✅ Jarima yo\'q';
   const taxLabel = taxDebt > 0 ? `❌ Qarz: ${formatter.formatAmount(taxDebt)} so'm` : '✅ Soliq to\'liq';
   const techLabel = techValid === false ? '❌ Texosmotr o\'tgan' : '✅ Texosmotr amal qiladi';
+  const tonirovkaLabel = tonirovkaValid === false ? '❌ Tonirovka o\'tgan' : '🪟 Tonirovka amal qiladi';
 
   return Markup.inlineKeyboard([
     [Markup.button.callback(fineLabel, `fines:${plateNumber}`)],
     [Markup.button.callback(taxLabel, `tax:${plateNumber}`)],
-    [Markup.button.callback(techLabel, `tech:${plateNumber}`)],
+    [Markup.button.callback(techLabel, `tech:${plateNumber}`), Markup.button.callback(tonirovkaLabel, `tonirovka:${plateNumber}`)],
     [Markup.button.callback('🔄 Yangilash', `refresh:${plateNumber}`)],
   ]);
 }

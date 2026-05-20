@@ -23,6 +23,9 @@ async function handleCallback(ctx) {
       case 'tech':
         await handleTechDetail(ctx, plateNumber);
         break;
+      case 'tonirovka':
+        await handleTonirovkaDetail(ctx, plateNumber);
+        break;
       case 'refresh':
         await handleRefresh(ctx, plateNumber);
         break;
@@ -53,6 +56,13 @@ async function handleTechDetail(ctx, plateNumber) {
   await ctx.answerCbQuery('Texosmotr ma\'lumotlari yuklanmoqda...');
   const tech = await carService.getTechInspection(plateNumber);
   const text = `${formatter.formatPlate(plateNumber)}\n\n${formatter.formatTechInspection(tech)}`;
+  await ctx.replyWithHTML(text);
+}
+
+async function handleTonirovkaDetail(ctx, plateNumber) {
+  await ctx.answerCbQuery('Tonirovka ma\'lumotlari yuklanmoqda...');
+  const tonirovka = await carService.getTonirovka(plateNumber);
+  const text = `${formatter.formatPlate(plateNumber)}\n\n${formatter.formatTonirovka(tonirovka)}`;
   await ctx.replyWithHTML(text);
 }
 

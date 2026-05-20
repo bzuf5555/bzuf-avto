@@ -26,6 +26,11 @@ const carCacheSchema = new mongoose.Schema({
     fetchedAt: { type: Date, default: null },
     source: { type: String, default: 'mock' },
   },
+  tonirovka: {
+    data: { type: mongoose.Schema.Types.Mixed, default: null },
+    fetchedAt: { type: Date, default: null },
+    source: { type: String, default: 'mock' },
+  },
   carInfo: {
     data: { type: mongoose.Schema.Types.Mixed, default: null },
     fetchedAt: { type: Date, default: null },
