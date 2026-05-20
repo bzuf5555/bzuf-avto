@@ -11,7 +11,7 @@ const messages = {
       `🔧 <b>Texosmotr</b> — texnik ko'rik muddati\n` +
       `🪟 <b>Tonirovka</b> — ruxsatnoma muddati\n\n` +
       `📝 Davlat raqamini yuboring:\n` +
-      `<code>01A123BC</code> yoki <code>AA12345</code>\n\n` +
+      `<code>01A123BC</code> yoki <code>01456AAA</code>\n\n` +
       `🔹 /help — yordam\n` +
       `🔹 /history — so'rovlar tarixi\n` +
       `🔹 /eslatma — muddatlar eslatmasi\n` +
@@ -20,10 +20,10 @@ const messages = {
     help:
       `ℹ️ <b>Yordam</b>\n\n` +
       `<b>Davlat raqami formatlari:</b>\n` +
-      `• <code>01A123BC</code> — yangi format\n` +
-      `• <code>AA12345</code> — eski format\n\n` +
+      `• <code>01A123BC</code> — format 1\n` +
+      `• <code>01456AAA</code> — format 2\n\n` +
       `<b>Bir nechta raqam:</b>\n` +
-      `• <code>01A123BC, 01B456CC</code> — vergul bilan ajrating\n\n` +
+      `• <code>01A123BC, 01456AAA</code> — vergul bilan ajrating\n\n` +
       `<b>Buyruqlar:</b>\n` +
       `🔹 /start — boshlanish\n` +
       `🔹 /help — bu yordam\n` +
@@ -35,9 +35,9 @@ const messages = {
     invalidPlate:
       `❌ <b>Noto'g'ri davlat raqami</b>\n\n` +
       `To'g'ri formatlar:\n` +
-      `• <code>01A123BC</code> — yangi format\n` +
-      `• <code>AA12345</code> — eski format\n` +
-      `• <code>01A123BC, 01B456CC</code> — bir nechta raqam\n\n` +
+      `• <code>01A123BC</code> — format 1\n` +
+      `• <code>01456AAA</code> — format 2\n` +
+      `• <code>01A123BC, 01456AAA</code> — bir nechta raqam\n\n` +
       `Iltimos, qaytadan kiriting.`,
 
     checking: (plate) => `🔍 <code>${plate}</code> tekshirilmoqda...\n⏳ Iltimos kuting...`,
@@ -130,7 +130,7 @@ const messages = {
       `🔧 <b>Техосмотр</b> — срок технического осмотра\n` +
       `🪟 <b>Тонировка</b> — срок действия разрешения\n\n` +
       `📝 Отправьте номер автомобиля:\n` +
-      `<code>01A123BC</code> или <code>AA12345</code>\n\n` +
+      `<code>01A123BC</code> или <code>01456AAA</code>\n\n` +
       `🔹 /help — помощь\n` +
       `🔹 /history — история запросов\n` +
       `🔹 /eslatma — напоминания о сроках\n` +
@@ -139,10 +139,10 @@ const messages = {
     help:
       `ℹ️ <b>Помощь</b>\n\n` +
       `<b>Форматы номеров:</b>\n` +
-      `• <code>01A123BC</code> — новый формат\n` +
-      `• <code>AA12345</code> — старый формат\n\n` +
+      `• <code>01A123BC</code> — формат 1\n` +
+      `• <code>01456AAA</code> — формат 2\n\n` +
       `<b>Несколько номеров:</b>\n` +
-      `• <code>01A123BC, 01B456CC</code> — разделите запятой\n\n` +
+      `• <code>01A123BC, 01456AAA</code> — разделите запятой\n\n` +
       `<b>Команды:</b>\n` +
       `🔹 /start — начало\n` +
       `🔹 /help — эта помощь\n` +
@@ -154,9 +154,9 @@ const messages = {
     invalidPlate:
       `❌ <b>Неверный номер автомобиля</b>\n\n` +
       `Правильные форматы:\n` +
-      `• <code>01A123BC</code> — новый формат\n` +
-      `• <code>AA12345</code> — старый формат\n` +
-      `• <code>01A123BC, 01B456CC</code> — несколько номеров\n\n` +
+      `• <code>01A123BC</code> — формат 1\n` +
+      `• <code>01456AAA</code> — формат 2\n` +
+      `• <code>01A123BC, 01456AAA</code> — несколько номеров\n\n` +
       `Пожалуйста, попробуйте снова.`,
 
     checking: (plate) => `🔍 Проверяем <code>${plate}</code>...\n⏳ Пожалуйста, подождите...`,
