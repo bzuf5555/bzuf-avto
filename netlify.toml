@@ -1,0 +1,25 @@
+[build]
+  command = "npm install"
+  publish = "public"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "10"
+
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["src/**"]
+
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Content-Type = "application/json"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+
+[dev]
+  command = "echo 'Bot webhook mode - use ngrok for local testing'"
+  port = 8888
+  targetPort = 9999
+  autoLaunch = false

@@ -1,0 +1,42 @@
+{
+  "name": "bzuf-avto",
+  "version": "1.0.0",
+  "description": "Avtomobil tekshiruv Telegram boti — davlat raqami bo'yicha jarima, soliq va texosmotr ma'lumotlari",
+  "main": "netlify/functions/bot.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "netlify dev",
+    "start": "netlify dev",
+    "setup": "node scripts/setup.js",
+    "test": "echo \"Tests pending\" && exit 0",
+    "lint": "eslint src/ netlify/"
+  },
+  "dependencies": {
+    "telegraf": "^4.16.3",
+    "mongoose": "^8.3.4",
+    "axios": "^1.6.8",
+    "dotenv": "^16.4.5",
+    "node-cache": "^5.1.2",
+    "winston": "^3.13.0",
+    "crypto-js": "^4.2.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.23.5"
+  },
+  "keywords": [
+    "telegram-bot",
+    "uzbekistan",
+    "avtomobil",
+    "jarima",
+    "soliq",
+    "texosmotr"
+  ],
+  "author": "bzuf5555",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bzuf5555/bzuf-avto.git"
+  }
+}
