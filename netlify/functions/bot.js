@@ -5,18 +5,38 @@ require('dotenv').config();
 const { connectDB } = require('../../src/config/database');
 const logger = require('../../src/utils/logger');
 
+const HANDLER_TIMEOUT_MS = 9000;
+
 // Bot singleton — Netlify serverless container qayta ishlatilganda qayta yaratilmaydi
 let botInstance = null;
+let dbConnecting = null;
 
 async function getBot() {
   if (botInstance) return botInstance;
-  await connectDB();
-  botInstance = require('../../src/config/bot');
+
+  // DB ulanish bir marta boshlanadi (parallel chaqiruvlarda ikkilanmaydi)
+  if (!dbConnecting) {
+    dbConnecting = connectDB().catch((err) => {
+      dbConnecting = null;
+      throw err;
+    });
+  }
+  await dbConnecting;
+
+  if (!botInstance) {
+    botInstance = require('../../src/config/bot');
+  }
   return botInstance;
 }
 
+function withTimeout(promise, ms) {
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error(`Handler ${ms}ms dan oshdi`)), ms)
+  );
+  return Promise.race([promise, timeout]);
+}
+
 exports.handler = async (event, context) => {
-  // Netlify connection reuse uchun
   context.callbackWaitsForEmptyEventLoop = false;
 
   if (event.httpMethod === 'GET') {
@@ -44,7 +64,7 @@ exports.handler = async (event, context) => {
 
   try {
     const bot = await getBot();
-    await bot.handleUpdate(update);
+    await withTimeout(bot.handleUpdate(update), HANDLER_TIMEOUT_MS);
     return { statusCode: 200, body: JSON.stringify({ ok: true }) };
   } catch (error) {
     logger.error('Webhook handler xatosi:', error.message);

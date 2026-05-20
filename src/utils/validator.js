@@ -28,4 +28,28 @@ function extractPlateFromText(text) {
   return looseMatch ? looseMatch[0] : null;
 }
 
-module.exports = { isValidPlate, normalizePlate, extractPlateFromText };
+// TASK-011: bir nechta raqamlarni ajratib olish (vergul/nuqta-vergul bilan ajratilgan)
+function extractMultiplePlates(text) {
+  const parts = text.toUpperCase().split(/[,;|\n]+/);
+  const plates = [];
+
+  for (const part of parts) {
+    const cleaned = part.trim().replace(/\s+/g, '');
+    if (!cleaned) continue;
+
+    for (const pattern of PLATE_PATTERNS) {
+      const match = cleaned.match(pattern);
+      if (match) {
+        const plate = normalizePlate(match[0]);
+        if (!plates.includes(plate)) plates.push(plate);
+        break;
+      }
+    }
+
+    if (plates.length >= 5) break;
+  }
+
+  return plates;
+}
+
+module.exports = { isValidPlate, normalizePlate, extractPlateFromText, extractMultiplePlates };

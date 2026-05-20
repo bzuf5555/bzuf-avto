@@ -1,52 +1,48 @@
 'use strict';
 
+const { t } = require('./i18n');
+
 function formatPlate(plate) {
   return `🚗 <b>${plate}</b>`;
 }
 
-function formatFines(finesData) {
-  if (!finesData || finesData.error) {
-    return '⚠️ <i>Jarima ma\'lumotlarini olishda xato</i>';
-  }
-  if (!finesData.fines || finesData.fines.length === 0) {
-    return '✅ Jarima topilmadi';
-  }
+function formatFines(finesData, lang = 'uz') {
+  if (!finesData || finesData.error) return t('finesError', lang);
+  if (!finesData.fines || finesData.fines.length === 0) return t('finesNone', lang);
 
   const total = finesData.totalAmount || 0;
-  let text = `🚨 <b>Jarimalar</b> (${finesData.fines.length} ta)\n`;
-  text += `💵 Jami: <b>${formatAmount(total)} so'm</b>\n\n`;
+  let text = t('finesTitle', lang, finesData.fines.length) + '\n';
+  text += `${t('finesTotal', lang)}: <b>${formatAmount(total)} ${t('currency', lang)}</b>\n\n`;
 
   finesData.fines.slice(0, 5).forEach((fine, i) => {
     text += `${i + 1}. ${fine.violation || 'Qoidabuzarlik'}\n`;
     text += `   📅 ${formatDate(fine.date)}\n`;
-    text += `   💰 ${formatAmount(fine.amount)} so'm\n`;
+    text += `   💰 ${formatAmount(fine.amount)} ${t('currency', lang)}\n`;
     if (fine.location) text += `   📍 ${fine.location}\n`;
     text += '\n';
   });
 
   if (finesData.fines.length > 5) {
-    text += `<i>... va yana ${finesData.fines.length - 5} ta jarima</i>`;
+    text += t('finesMore', lang, finesData.fines.length - 5);
   }
 
   return text;
 }
 
-function formatTax(taxData) {
-  if (!taxData || taxData.error) {
-    return '⚠️ <i>Soliq ma\'lumotlarini olishda xato</i>';
-  }
+function formatTax(taxData, lang = 'uz') {
+  if (!taxData || taxData.error) return t('taxError', lang);
 
-  let text = '💰 <b>Soliq holati</b>\n\n';
+  let text = t('taxTitle', lang) + '\n\n';
 
   if (!taxData.hasDebt) {
-    text += '✅ Soliq qarzi yo\'q\n';
+    text += t('taxNone', lang) + '\n';
   } else {
-    text += `❌ Umumiy qarz: <b>${formatAmount(taxData.totalDebt)} so'm</b>\n\n`;
+    text += `${t('taxDebt', lang)}: <b>${formatAmount(taxData.totalDebt)} ${t('currency', lang)}</b>\n\n`;
     if (taxData.debts && taxData.debts.length > 0) {
       taxData.debts.forEach((debt, i) => {
-        text += `${i + 1}. ${debt.type || 'Soliq turi'}\n`;
-        text += `   💵 ${formatAmount(debt.amount)} so'm\n`;
-        if (debt.dueDate) text += `   📅 To'lash muddati: ${formatDate(debt.dueDate)}\n`;
+        text += `${i + 1}. ${debt.type || t('taxType', lang)}\n`;
+        text += `   💵 ${formatAmount(debt.amount)} ${t('currency', lang)}\n`;
+        if (debt.dueDate) text += `   📅 ${t('taxDue', lang)}: ${formatDate(debt.dueDate)}\n`;
         text += '\n';
       });
     }
@@ -55,15 +51,13 @@ function formatTax(taxData) {
   return text;
 }
 
-function formatTechInspection(techData) {
-  if (!techData || techData.error) {
-    return '⚠️ <i>Texosmotr ma\'lumotlarini olishda xato</i>';
-  }
+function formatTechInspection(techData, lang = 'uz') {
+  if (!techData || techData.error) return t('techError', lang);
 
-  let text = '🔧 <b>Texnik ko\'rik (Texosmotr)</b>\n\n';
+  let text = t('techTitle', lang) + '\n\n';
 
   if (!techData.expiryDate) {
-    text += '❓ Ma\'lumot topilmadi\n';
+    text += `❓ ${t('noData', lang)}\n`;
     return text;
   }
 
@@ -71,35 +65,33 @@ function formatTechInspection(techData) {
   const expiry = new Date(techData.expiryDate);
   const daysLeft = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
 
-  text += `📅 Muddati: <b>${formatDate(techData.expiryDate)}</b>\n`;
+  text += `${t('techExpiry', lang)}: <b>${formatDate(techData.expiryDate)}</b>\n`;
 
   if (daysLeft < 0) {
-    text += `❌ Muddati <b>${Math.abs(daysLeft)} kun</b> oldin o'tgan!\n`;
+    text += t('techExpired', lang, Math.abs(daysLeft)) + '\n';
   } else if (daysLeft <= 30) {
-    text += `⚠️ Muddatga <b>${daysLeft} kun</b> qoldi\n`;
+    text += t('techSoon', lang, daysLeft) + '\n';
   } else {
-    text += `✅ Amal qilish muddati: <b>${daysLeft} kun</b>\n`;
+    text += t('techValid', lang, daysLeft) + '\n';
   }
 
   if (techData.lastInspectionDate) {
-    text += `🔍 So'nggi tekshiruv: ${formatDate(techData.lastInspectionDate)}\n`;
+    text += `${t('techLast', lang)}: ${formatDate(techData.lastInspectionDate)}\n`;
   }
   if (techData.nextInspectionDate) {
-    text += `📆 Keyingi tekshiruv: ${formatDate(techData.nextInspectionDate)}\n`;
+    text += `${t('techNext', lang)}: ${formatDate(techData.nextInspectionDate)}\n`;
   }
 
   return text;
 }
 
-function formatTonirovka(tonirovkaData) {
-  if (!tonirovkaData || tonirovkaData.error) {
-    return '⚠️ <i>Tonirovka ma\'lumotlarini olishda xato</i>';
-  }
+function formatTonirovka(tonirovkaData, lang = 'uz') {
+  if (!tonirovkaData || tonirovkaData.error) return t('tonirovkaError', lang);
 
-  let text = '🪟 <b>Tonirovka ruxsatnomasi</b>\n\n';
+  let text = t('tonirovkaTitle', lang) + '\n\n';
 
   if (!tonirovkaData.expiryDate) {
-    text += '❓ Ma\'lumot topilmadi\n';
+    text += `❓ ${t('noData', lang)}\n`;
     return text;
   }
 
@@ -107,33 +99,33 @@ function formatTonirovka(tonirovkaData) {
   const expiry = new Date(tonirovkaData.expiryDate);
   const daysLeft = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
 
-  text += `📅 Muddati: <b>${formatDate(tonirovkaData.expiryDate)}</b>\n`;
+  text += `📅 ${t('tonirovkaTitle', lang).replace(/[^A-Za-z]/g, '') ? '' : ''}${t('techExpiry', lang)}: <b>${formatDate(tonirovkaData.expiryDate)}</b>\n`;
 
   if (daysLeft < 0) {
-    text += `❌ Muddati <b>${Math.abs(daysLeft)} kun</b> oldin o'tgan!\n`;
+    text += t('tonirovkaExpired', lang, Math.abs(daysLeft)) + '\n';
   } else if (daysLeft <= 30) {
-    text += `⚠️ Muddatga <b>${daysLeft} kun</b> qoldi\n`;
+    text += t('tonirovkaSoon', lang, daysLeft) + '\n';
   } else {
-    text += `✅ Amal qilish muddati: <b>${daysLeft} kun</b>\n`;
+    text += t('tonirovkaValid', lang, daysLeft) + '\n';
   }
 
   if (tonirovkaData.issueDate) {
-    text += `📋 Berilgan sana: ${formatDate(tonirovkaData.issueDate)}\n`;
+    text += `${t('tonirovkaIssued', lang)}: ${formatDate(tonirovkaData.issueDate)}\n`;
   }
   if (tonirovkaData.lightTransmission) {
-    text += `💡 Yorug'lik o'tkazuvchanligi: <b>${tonirovkaData.lightTransmission}%</b>\n`;
+    text += `${t('tonirovkaLight', lang)}: <b>${tonirovkaData.lightTransmission}%</b>\n`;
   }
   if (tonirovkaData.issuedBy) {
-    text += `🏢 Berilgan joy: ${tonirovkaData.issuedBy}\n`;
+    text += `${t('tonirovkaIssuedBy', lang)}: ${tonirovkaData.issuedBy}\n`;
   }
   if (tonirovkaData.certificateNumber) {
-    text += `🔢 Raqam: <code>${tonirovkaData.certificateNumber}</code>\n`;
+    text += `${t('tonirovkaCert', lang)}: <code>${tonirovkaData.certificateNumber}</code>\n`;
   }
 
   return text;
 }
 
-function formatFullReport(plateNumber, data) {
+function formatFullReport(plateNumber, data, lang = 'uz') {
   const timestamp = new Date().toLocaleString('uz-UZ', {
     timeZone: 'Asia/Tashkent',
     day: '2-digit',
@@ -144,24 +136,24 @@ function formatFullReport(plateNumber, data) {
   });
 
   let report = `${formatPlate(plateNumber)}\n`;
-  report += `🕐 ${timestamp} (Toshkent vaqti)\n`;
+  report += `🕐 ${timestamp} (${t('tashkentTime', lang)})\n`;
   report += '━━━━━━━━━━━━━━━━━━━━\n\n';
 
   if (data.carInfo) {
-    report += `🚙 <b>Avtomobil</b>: ${data.carInfo.brand || '—'} ${data.carInfo.model || ''}\n`;
-    report += `📋 <b>Yil</b>: ${data.carInfo.year || '—'}\n`;
-    report += `🎨 <b>Rang</b>: ${data.carInfo.color || '—'}\n\n`;
+    report += `${t('carBrand', lang)}: ${data.carInfo.brand || '—'} ${data.carInfo.model || ''}\n`;
+    report += `${t('carYear', lang)}: ${data.carInfo.year || '—'}\n`;
+    report += `${t('carColor', lang)}: ${data.carInfo.color || '—'}\n\n`;
   }
 
-  report += formatFines(data.fines) + '\n';
+  report += formatFines(data.fines, lang) + '\n';
   report += '━━━━━━━━━━━━━━━━━━━━\n';
-  report += formatTax(data.tax) + '\n';
+  report += formatTax(data.tax, lang) + '\n';
   report += '━━━━━━━━━━━━━━━━━━━━\n';
-  report += formatTechInspection(data.techInspection) + '\n';
+  report += formatTechInspection(data.techInspection, lang) + '\n';
   report += '━━━━━━━━━━━━━━━━━━━━\n';
-  report += formatTonirovka(data.tonirovka) + '\n';
+  report += formatTonirovka(data.tonirovka, lang) + '\n';
   report += '━━━━━━━━━━━━━━━━━━━━\n';
-  report += '<i>📊 Ma\'lumotlar davlat bazalaridan olingan</i>';
+  report += `<i>${t('dataSource', lang)}</i>`;
 
   return report;
 }

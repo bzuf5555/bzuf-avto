@@ -9,6 +9,9 @@ async function userMiddleware(ctx, next) {
   try {
     const { id, username, first_name, last_name, language_code } = ctx.from;
 
+    // Telegram language_code: 'ru' bo'lsa rus tili, aks holda o'zbek
+    const detectedLang = language_code && language_code.startsWith('ru') ? 'ru' : 'uz';
+
     let user = await User.findOne({ telegramId: id });
     if (!user) {
       user = await User.create({
@@ -16,11 +19,10 @@ async function userMiddleware(ctx, next) {
         username: username || null,
         firstName: first_name || 'Foydalanuvchi',
         lastName: last_name || null,
-        languageCode: language_code || 'uz',
+        languageCode: detectedLang,
       });
-      logger.info(`Yangi foydalanuvchi: ${id} (@${username || 'no_username'})`);
+      logger.info(`Yangi foydalanuvchi: ${id} (@${username || 'no_username'}) lang=${detectedLang}`);
     } else {
-      // Profil ma'lumotlari o'zgargan bo'lsa yangilash
       const needsUpdate =
         user.username !== username ||
         user.firstName !== first_name ||
@@ -34,8 +36,9 @@ async function userMiddleware(ctx, next) {
       }
     }
 
+    const { t } = require('../utils/i18n');
     if (user.isBlocked) {
-      return ctx.reply('Siz botdan foydalanishdan mahrum etilgansiz.').catch(() => {});
+      return ctx.reply(t('blocked', user.languageCode || 'uz')).catch(() => {});
     }
 
     ctx.dbUser = user;

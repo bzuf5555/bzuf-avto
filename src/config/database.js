@@ -5,9 +5,12 @@ const logger = require('../utils/logger');
 let cachedConnection = null;
 
 const MONGODB_OPTIONS = {
-  maxPoolSize: 10,
+  maxPoolSize: 3,
+  minPoolSize: 0,
   serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
+  connectTimeoutMS: 5000,
+  socketTimeoutMS: 30000,
+  heartbeatFrequencyMS: 10000,
   bufferCommands: false,
 };
 

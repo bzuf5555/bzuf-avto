@@ -33,5 +33,16 @@
 
 - [x] **BONUS**: Tonirovka tekshiruvi qo'shildi (agent, formatter, keyboard, callback)
 
+- [x] **TASK-002**: Netlify production deploy
+  - https://bzuf-avto.netlify.app
+  - Barcha env vars Netlify'da o'rnatildi
+
+- [x] **TASK-003**: Telegram webhook o'rnatildi
+  - `https://bzuf-avto.netlify.app/.netlify/functions/bot`
+
+- [x] **GitHub Actions**: CI/CD sozlandi
+  - `NETLIFY_AUTH_TOKEN` va `NETLIFY_SITE_ID` secrets qo'shildi
+  - Har `main` ga push bo'lganda avtomatik deploy
+
 ---
 *Fayl yangilangan: 2026-05-20*

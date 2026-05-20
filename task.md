@@ -2,31 +2,17 @@
 
 ## 🔴 Yuqori Prioritet — Siz bajarishingiz kerak
 
-- [ ] **TASK-001**: MongoDB Atlas bepul klaster yaratish va `MONGODB_URI` olish
-  1. https://atlas.mongodb.com saytiga boring
-  2. "Build a Database" → **M0 Free** tanlang
-  3. Region: **AWS / Frankfurt** (yaqin server)
-  4. "Connect" → "Connect your application" → connection string oling
-  5. `.env` faylida `MONGODB_URI=` ni yangilang
-  6. Netlify dashboard'da ham `MONGODB_URI` env var o'rnating
+- [x] **TASK-001**: MongoDB Atlas klaster tayyor ✅ BAJARILDI
+  - Cluster: cluster0.gtner7s.mongodb.net
+  - DB: avto_tekshiruv
 
-- [ ] **TASK-002**: Netlify saytini bog'lash
-  1. https://netlify.com → "Add new site" → "Import an existing project"
-  2. GitHub → `bzuf5555/bzuf-avto` repo tanlang
-  3. Build command: `npm install` | Publish dir: `public`
-  4. Environment Variables qo'shing:
-     - `BOT_TOKEN` = `8943535032:AAHIyPXvmNUUFlB391k61DGQOHuDjpXMnNI`
-     - `MONGODB_URI` = (TASK-001 dan olingan)
-     - `NODE_ENV` = `production`
-     - `ENCRYPTION_KEY` = (32 belgili ixtiyoriy kalit)
-  5. Deploy tugmasini bosing
+- [x] **TASK-002**: Netlify saytini bog'lash ✅ BAJARILDI
+  - URL: https://bzuf-avto.netlify.app
+  - Site ID: d235e3a5-9e09-4cf4-aaa4-9f058b8446fc
+  - Barcha env vars o'rnatildi
 
-- [ ] **TASK-003**: Telegram Webhook o'rnatish
-  - TASK-001 va TASK-002 tayyor bo'lgandan keyin terminalda:
-  ```
-  node scripts/setup.js
-  ```
-  - Yoki terminal ichida: `! node scripts/setup.js`
+- [x] **TASK-003**: Telegram Webhook o'rnatildi ✅ BAJARILDI
+  - Webhook: https://bzuf-avto.netlify.app/.netlify/functions/bot
 
 - [ ] **TASK-004**: Real API integratsiya (ixtiyoriy — hozir mock ishlaydi)
   - e.jarima.uz → API kaliti olish

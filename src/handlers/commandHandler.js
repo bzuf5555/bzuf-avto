@@ -3,6 +3,7 @@
 const carService = require('../services/carService');
 const formatter = require('../utils/formatter');
 const { isValidPlate, normalizePlate } = require('../utils/validator');
+const { t, getLang } = require('../utils/i18n');
 const User = require('../models/User');
 const Query = require('../models/Query');
 const logger = require('../utils/logger');
@@ -10,53 +11,28 @@ const logger = require('../utils/logger');
 const ADMIN_IDS = (process.env.ADMIN_IDS || '').split(',').map(Number).filter(Boolean);
 
 async function start(ctx) {
-  const name = ctx.from.first_name || 'Do\'stim';
-  const message =
-    `👋 Salom, <b>${name}</b>!\n\n` +
-    `🚗 <b>Avto Tekshiruv Botiga</b> xush kelibsiz!\n\n` +
-    `Bu bot orqali O'zbekiston avtomobillari haqida quyidagi ma'lumotlarni bilib olishingiz mumkin:\n\n` +
-    `🚨 <b>Jarimalar</b> — to'lanmagan va to'langan jarimalar\n` +
-    `💰 <b>Soliq qarzlari</b> — transport solig'i holati\n` +
-    `🔧 <b>Texosmotr</b> — texnik ko'rik muddati\n` +
-    `🪟 <b>Tonirovka</b> — ruxsatnoma muddati\n\n` +
-    `📝 <b>Ishlatish:</b>\n` +
-    `Davlat raqamini yuboring, masalan:\n` +
-    `<code>01A123BC</code> yoki <code>AA12345</code>\n\n` +
-    `🔹 /help — yordam\n` +
-    `🔹 /history — so'rovlar tarixi\n` +
-    `🔹 /eslatma — muddatlar eslatmasi`;
-
-  await ctx.replyWithHTML(message);
+  const lang = getLang(ctx.dbUser);
+  const name = ctx.from.first_name || (lang === 'ru' ? 'Друг' : 'Do\'stim');
+  await ctx.replyWithHTML(t('welcome', lang, name));
 }
 
 async function help(ctx) {
-  const message =
-    `ℹ️ <b>Yordam</b>\n\n` +
-    `<b>Davlat raqami formatlari:</b>\n` +
-    `• <code>01A123BC</code> — yangi format\n` +
-    `• <code>AA12345</code> — eski format\n\n` +
-    `<b>Buyruqlar:</b>\n` +
-    `🔹 /start — boshlanish\n` +
-    `🔹 /help — bu yordam\n` +
-    `🔹 /history — oxirgi 10 ta so'rovingiz\n` +
-    `🔹 /eslatma <code>01A123BC</code> — eslatmaga qo'shish/o'chirish\n\n` +
-    `<b>Eslatma:</b> Ma'lumotlar davlat bazalaridan olinadi va keshlanadi. ` +
-    `Yangi ma'lumot olish uchun <i>"🔄 Yangilash"</i> tugmasini bosing.`;
-
-  await ctx.replyWithHTML(message);
+  const lang = getLang(ctx.dbUser);
+  await ctx.replyWithHTML(t('help', lang));
 }
 
 async function history(ctx) {
   if (!ctx.from) return;
+  const lang = getLang(ctx.dbUser);
 
   try {
     const queries = await carService.getUserHistory(ctx.from.id, 10);
 
     if (queries.length === 0) {
-      return ctx.reply('📭 Hali hech qanday so\'rov yo\'q.\n\nDavlat raqamini yuboring.');
+      return ctx.replyWithHTML(t('historyEmpty', lang));
     }
 
-    let text = '📋 <b>So\'rovlar tarixi (oxirgi 10 ta):</b>\n\n';
+    let text = t('historyTitle', lang);
     queries.forEach((q, i) => {
       const date = formatter.formatDate(q.createdAt);
       const time = new Date(q.createdAt).toLocaleTimeString('uz-UZ', {
@@ -69,54 +45,63 @@ async function history(ctx) {
     await ctx.replyWithHTML(text);
   } catch (error) {
     logger.error('history xatosi:', error.message);
-    await ctx.reply('Tarix olishda xato yuz berdi.');
+    await ctx.replyWithHTML(t('error', lang));
   }
 }
 
 async function eslatma(ctx) {
   if (!ctx.from) return;
-
+  const lang = getLang(ctx.dbUser);
   const args = ctx.message.text.split(' ').slice(1);
   const user = ctx.dbUser;
 
-  if (!user) return ctx.reply('Foydalanuvchi topilmadi.');
+  if (!user) return ctx.replyWithHTML(t('userNotFound', lang));
 
-  // /eslatma — hozirgi kuzatilayotgan raqamlar ro'yxati
   if (args.length === 0) {
     if (!user.watchedPlates || user.watchedPlates.length === 0) {
-      return ctx.replyWithHTML(
-        '🔔 <b>Eslatma ro\'yxati bo\'sh</b>\n\n' +
-        'Eslatma qo\'shish uchun:\n' +
-        '<code>/eslatma 01A123BC</code>'
-      );
+      return ctx.replyWithHTML(t('watchListEmpty', lang));
     }
-    let text = '🔔 <b>Kuzatilayotgan raqamlar:</b>\n\n';
+    let text = t('watchListTitle', lang);
     user.watchedPlates.forEach((p, i) => { text += `${i + 1}. <code>${p}</code>\n`; });
-    text += '\nO\'chirish: <code>/eslatma 01A123BC</code>';
+    text += t('watchListRemoveHint', lang);
     return ctx.replyWithHTML(text);
   }
 
   const plate = normalizePlate(args[0]);
   if (!isValidPlate(plate)) {
-    return ctx.reply('❌ Noto\'g\'ri davlat raqami formati.');
+    return ctx.replyWithHTML(t('watchInvalidPlate', lang));
   }
 
-  // Ro'yxatda bo'lsa — o'chirish, bo'lmasa — qo'shish
   if (user.watchedPlates && user.watchedPlates.includes(plate)) {
     await user.unwatchPlate(plate);
-    return ctx.replyWithHTML(
-      `🔕 <code>${plate}</code> eslatma ro'yxatidan o'chirildi.`
-    );
+    return ctx.replyWithHTML(t('watchRemoved', lang, plate));
   } else {
     if (user.watchedPlates && user.watchedPlates.length >= 5) {
-      return ctx.reply('⚠️ Maksimal 5 ta raqam kuzatish mumkin.');
+      return ctx.replyWithHTML(t('watchLimit', lang));
     }
     await user.watchPlate(plate);
-    return ctx.replyWithHTML(
-      `🔔 <code>${plate}</code> eslatma ro'yxatiga qo'shildi.\n\n` +
-      `Har kuni muddatlar yaqinlashsa xabar beraman.`
-    );
+    return ctx.replyWithHTML(t('watchAdded', lang, plate));
   }
+}
+
+async function til(ctx) {
+  if (!ctx.from) return;
+  const lang = getLang(ctx.dbUser);
+  await ctx.replyWithHTML(t('langSelect', lang));
+}
+
+async function tilUz(ctx) {
+  if (!ctx.from || !ctx.dbUser) return;
+  await User.updateOne({ telegramId: ctx.from.id }, { languageCode: 'uz' });
+  ctx.dbUser.languageCode = 'uz';
+  await ctx.replyWithHTML(t('langChanged', 'uz'));
+}
+
+async function tilRu(ctx) {
+  if (!ctx.from || !ctx.dbUser) return;
+  await User.updateOne({ telegramId: ctx.from.id }, { languageCode: 'ru' });
+  ctx.dbUser.languageCode = 'ru';
+  await ctx.replyWithHTML(t('langChanged', 'ru'));
 }
 
 async function stats(ctx) {
@@ -136,16 +121,15 @@ async function stats(ctx) {
       User.countDocuments({ 'watchedPlates.0': { $exists: true } }),
     ]);
 
-    const text =
+    await ctx.replyWithHTML(
       `📊 <b>Bot Statistikasi</b>\n\n` +
       `👥 Jami foydalanuvchilar: <b>${userCount}</b>\n` +
       `🟢 Faol (7 kun): <b>${activeUsers}</b>\n` +
       `🔔 Eslatma obunachilari: <b>${watchedCount}</b>\n` +
       `━━━━━━━━━━━━━━━━━\n` +
       `🔍 Jami so'rovlar: <b>${queryCount}</b>\n` +
-      `📅 Bugungi so'rovlar: <b>${todayCount}</b>`;
-
-    await ctx.replyWithHTML(text);
+      `📅 Bugungi so'rovlar: <b>${todayCount}</b>`
+    );
   } catch (error) {
     logger.error('stats xatosi:', error.message);
     await ctx.reply('Statistika olishda xato.');
@@ -163,9 +147,7 @@ async function users(ctx) {
       .limit(20)
       .select('telegramId username firstName queryCount createdAt');
 
-    if (recentUsers.length === 0) {
-      return ctx.reply('Foydalanuvchilar yo\'q.');
-    }
+    if (recentUsers.length === 0) return ctx.reply('Foydalanuvchilar yo\'q.');
 
     let text = `👥 <b>Oxirgi 20 ta foydalanuvchi:</b>\n\n`;
     recentUsers.forEach((u, i) => {
@@ -187,9 +169,7 @@ async function broadcast(ctx) {
   }
 
   const text = ctx.message.text.replace('/broadcast', '').trim();
-  if (!text) {
-    return ctx.reply('Ishlatish: /broadcast <xabar matni>');
-  }
+  if (!text) return ctx.reply('Ishlatish: /broadcast <xabar matni>');
 
   try {
     const allUsers = await User.find({ isBlocked: false }).select('telegramId');
@@ -200,7 +180,6 @@ async function broadcast(ctx) {
       try {
         await ctx.telegram.sendMessage(user.telegramId, `📢 ${text}`, { parse_mode: 'HTML' });
         sent++;
-        // Telegram flood limitidan himoya uchun kichik pauza
         await new Promise((r) => setTimeout(r, 35));
       } catch {
         failed++;
@@ -218,4 +197,4 @@ async function broadcast(ctx) {
   }
 }
 
-module.exports = { start, help, history, eslatma, stats, users, broadcast };
+module.exports = { start, help, history, eslatma, til, tilUz, tilRu, stats, users, broadcast };
