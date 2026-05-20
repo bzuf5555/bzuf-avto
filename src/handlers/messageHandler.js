@@ -5,6 +5,7 @@ const carService = require('../services/carService');
 const formatter = require('../utils/formatter');
 const { isValidPlate, extractPlateFromText, normalizePlate, extractMultiplePlates } = require('../utils/validator');
 const { t, getLang } = require('../utils/i18n');
+const { mainKeyboard } = require('../utils/keyboard');
 const User = require('../models/User');
 const logger = require('../utils/logger');
 
@@ -14,19 +15,78 @@ async function handleText(ctx) {
 
   const lang = getLang(ctx.dbUser);
 
-  // TASK-011: Bir nechta raqam tekshirish
+  // Asosiy menyu tugmalarini ushlash
+  if (text === t('btnCheck', lang))   return handleCheckPrompt(ctx, lang);
+  if (text === t('btnHistory', lang)) return handleHistory(ctx, lang);
+  if (text === t('btnReminder', lang)) return handleReminders(ctx, lang);
+  if (text === t('btnHelp', lang))    return handleHelp(ctx, lang);
+  if (text === t('btnSaved', lang))   return handleSaved(ctx, lang);
+
+  // Bir nechta raqam tekshirish
   const plates = extractMultiplePlates(text);
-  if (plates.length > 1) {
-    return handleMultiplePlates(ctx, plates, lang);
-  }
+  if (plates.length > 1) return handleMultiplePlates(ctx, plates, lang);
 
   // Yagona raqam
   const plate = extractPlateFromText(text);
   if (!plate || !isValidPlate(plate)) {
-    return ctx.replyWithHTML(t('invalidPlate', lang));
+    return ctx.replyWithHTML(t('invalidPlate', lang), mainKeyboard(lang));
   }
 
-  const normalizedPlate = normalizePlate(plate);
+  return checkPlate(ctx, normalizePlate(plate), lang);
+}
+
+// "🔍 Davlat raqami tekshirish" tugmasi
+async function handleCheckPrompt(ctx, lang) {
+  await ctx.replyWithHTML(t('checkPrompt', lang), mainKeyboard(lang));
+}
+
+// "ℹ️ Yordam" tugmasi
+async function handleHelp(ctx, lang) {
+  const { help } = require('./commandHandler');
+  await help(ctx);
+}
+
+// "🕐 Tarix" tugmasi
+async function handleHistory(ctx, lang) {
+  const { history } = require('./commandHandler');
+  await history(ctx);
+}
+
+// "🔔 Eslatmalar" tugmasi
+async function handleReminders(ctx, lang) {
+  try {
+    const user = ctx.dbUser;
+    if (!user || !user.watchedPlates || user.watchedPlates.length === 0) {
+      return ctx.replyWithHTML(t('savedEmpty', lang), mainKeyboard(lang));
+    }
+    let text = t('watchListTitle', lang);
+    user.watchedPlates.forEach((p, i) => { text += `${i + 1}. <code>${p}</code>\n`; });
+    text += t('watchListRemoveHint', lang);
+    await ctx.replyWithHTML(text, mainKeyboard(lang));
+  } catch (error) {
+    logger.error('handleReminders xatosi:', error.message);
+    await ctx.replyWithHTML(t('error', lang), mainKeyboard(lang));
+  }
+}
+
+// "⭐ Saqlangan raqamlar" tugmasi
+async function handleSaved(ctx, lang) {
+  try {
+    const user = ctx.dbUser;
+    if (!user || !user.watchedPlates || user.watchedPlates.length === 0) {
+      return ctx.replyWithHTML(t('savedEmpty', lang), mainKeyboard(lang));
+    }
+    let text = t('watchListTitle', lang);
+    user.watchedPlates.forEach((p, i) => { text += `${i + 1}. <code>${p}</code>\n`; });
+    text += t('watchListRemoveHint', lang);
+    await ctx.replyWithHTML(text, mainKeyboard(lang));
+  } catch (error) {
+    logger.error('handleSaved xatosi:', error.message);
+    await ctx.replyWithHTML(t('error', lang), mainKeyboard(lang));
+  }
+}
+
+async function checkPlate(ctx, normalizedPlate, lang) {
   const loadingMsg = await ctx.replyWithHTML(t('checking', lang, normalizedPlate));
 
   try {
@@ -37,14 +97,14 @@ async function handleText(ctx) {
 
     const data = await carService.getFullReport(normalizedPlate, userId, telegramId);
     const report = formatter.formatFullReport(normalizedPlate, data, lang);
-    const keyboard = buildKeyboard(normalizedPlate, data, lang);
+    const inlineKb = buildKeyboard(normalizedPlate, data, lang);
 
     await ctx.telegram.deleteMessage(ctx.chat.id, loadingMsg.message_id).catch(() => {});
-    await ctx.replyWithHTML(report, { reply_markup: keyboard.reply_markup });
+    await ctx.replyWithHTML(report, { reply_markup: inlineKb.reply_markup });
   } catch (error) {
-    logger.error(`messageHandler xatosi [${normalizedPlate}]:`, error.message);
+    logger.error(`checkPlate xatosi [${normalizedPlate}]:`, error.message);
     await ctx.telegram.deleteMessage(ctx.chat.id, loadingMsg.message_id).catch(() => {});
-    await ctx.replyWithHTML(t('error', lang));
+    await ctx.replyWithHTML(t('error', lang), mainKeyboard(lang));
   }
 }
 
@@ -57,7 +117,6 @@ async function handleMultiplePlates(ctx, plates, lang) {
     const userId = ctx.dbUser ? ctx.dbUser._id : null;
     const telegramId = ctx.from.id;
 
-    // Parallel tekshirish
     const results = await Promise.allSettled(
       plates.map((plate) => carService.getFullReport(plate, userId, telegramId))
     );
@@ -68,8 +127,8 @@ async function handleMultiplePlates(ctx, plates, lang) {
       const result = results[i];
       if (result.status === 'fulfilled') {
         const report = formatter.formatFullReport(plates[i], result.value, lang);
-        const keyboard = buildKeyboard(plates[i], result.value, lang);
-        await ctx.replyWithHTML(report, { reply_markup: keyboard.reply_markup });
+        const kb = buildKeyboard(plates[i], result.value, lang);
+        await ctx.replyWithHTML(report, { reply_markup: kb.reply_markup });
       } else {
         await ctx.replyWithHTML(`🚗 <b>${plates[i]}</b>\n${t('error', lang)}`);
       }
@@ -105,7 +164,6 @@ async function handleContact(ctx) {
   const lang = getLang(ctx.dbUser);
   const name = ctx.from.first_name || (lang === 'ru' ? 'Друг' : 'Do\'stim');
 
-  // Faqat o'z kontaktini qabul qilamiz
   if (contact.user_id && contact.user_id !== ctx.from.id) {
     return ctx.replyWithHTML(
       lang === 'ru'
@@ -120,19 +178,14 @@ async function handleContact(ctx) {
       { telegramId: ctx.from.id },
       { phoneNumber: contact.phone_number, phoneSharedAt: new Date() }
     );
-    if (ctx.dbUser) {
-      ctx.dbUser.phoneNumber = contact.phone_number;
-    }
+    if (ctx.dbUser) ctx.dbUser.phoneNumber = contact.phone_number;
 
     logger.info(`Telefon saqlandi: ${ctx.from.id} → ${contact.phone_number}`);
 
-    await ctx.replyWithHTML(
-      t('phoneReceived', lang, name),
-      Markup.removeKeyboard()
-    );
+    await ctx.replyWithHTML(t('phoneReceived', lang, name), Markup.removeKeyboard());
 
-    // Welcome xabarini ham ko'rsatish
-    await ctx.replyWithHTML(t('welcome', lang, name));
+    // Welcome + asosiy keyboard
+    await ctx.replyWithHTML(t('welcome', lang, name), mainKeyboard(lang));
   } catch (error) {
     logger.error('handleContact xatosi:', error.message);
     await ctx.reply(t('error', lang), Markup.removeKeyboard());

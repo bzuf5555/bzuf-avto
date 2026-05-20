@@ -66,6 +66,22 @@ const messages = {
     phoneReceived: (name) =>
       `✅ Rahmat, <b>${name}</b>! Raqamingiz saqlandi.\n\n` +
       `Endi botdan to'liq foydalanishingiz mumkin 🚗`,
+    // Asosiy menyu tugmalari
+    btnCheck: `🔍 Davlat raqami tekshirish`,
+    btnSaved: `⭐ Saqlangan raqamlar`,
+    btnHistory: `🕐 Tarix`,
+    btnReminder: `🔔 Eslatmalar`,
+    btnHelp: `ℹ️ Yordam`,
+
+    checkPrompt:
+      `🔍 <b>Davlat raqamini kiriting:</b>\n\n` +
+      `Misol: <code>01A123BC</code> yoki <code>01456AAA</code>\n` +
+      `Bir nechta: <code>01A123BC, 01456BBB</code>`,
+
+    savedEmpty:
+      `⭐ <b>Saqlangan raqamlar yo'q</b>\n\n` +
+      `Eslatma qo'shish uchun: /eslatma 01A123BC`,
+
     langChanged: `✅ Til o'zgartirildi: <b>O'zbek tili</b> 🇺🇿`,
     langSelect:
       `🌐 <b>Tilni tanlang / Выберите язык</b>\n\n` +
@@ -185,6 +201,22 @@ const messages = {
     phoneReceived: (name) =>
       `✅ Спасибо, <b>${name}</b>! Ваш номер сохранён.\n\n` +
       `Теперь вы можете пользоваться ботом 🚗`,
+    // Asosiy menyu tugmalari
+    btnCheck: `🔍 Проверить номер`,
+    btnSaved: `⭐ Сохранённые номера`,
+    btnHistory: `🕐 История`,
+    btnReminder: `🔔 Напоминания`,
+    btnHelp: `ℹ️ Помощь`,
+
+    checkPrompt:
+      `🔍 <b>Введите номер автомобиля:</b>\n\n` +
+      `Пример: <code>01A123BC</code> или <code>01456AAA</code>\n` +
+      `Несколько: <code>01A123BC, 01456BBB</code>`,
+
+    savedEmpty:
+      `⭐ <b>Сохранённых номеров нет</b>\n\n` +
+      `Добавить напоминание: /eslatma 01A123BC`,
+
     langChanged: `✅ Язык изменён: <b>Русский язык</b> 🇷🇺`,
     langSelect:
       `🌐 <b>Tilni tanlang / Выберите язык</b>\n\n` +

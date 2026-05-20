@@ -5,6 +5,7 @@ const carService = require('../services/carService');
 const formatter = require('../utils/formatter');
 const { isValidPlate, normalizePlate } = require('../utils/validator');
 const { t, getLang } = require('../utils/i18n');
+const { mainKeyboard } = require('../utils/keyboard');
 const User = require('../models/User');
 const Query = require('../models/Query');
 const logger = require('../utils/logger');
@@ -15,9 +16,9 @@ async function start(ctx) {
   const lang = getLang(ctx.dbUser);
   const name = ctx.from.first_name || (lang === 'ru' ? 'Друг' : 'Do\'stim');
 
-  // Telefon raqam allaqachon saqlangan — oddiy welcome
+  // Telefon raqam allaqachon saqlangan — welcome + asosiy keyboard
   if (ctx.dbUser && ctx.dbUser.phoneNumber) {
-    return ctx.replyWithHTML(t('welcome', lang, name));
+    return ctx.replyWithHTML(t('welcome', lang, name), mainKeyboard(lang));
   }
 
   // Telefon raqam so'rash
