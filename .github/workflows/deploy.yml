@@ -26,3 +26,9 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+      - name: Set Telegram Webhook
+        run: node scripts/setup.js
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          NETLIFY_URL: https://bzuf-avto.netlify.app
