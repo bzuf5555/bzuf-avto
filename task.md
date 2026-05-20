@@ -1,65 +1,47 @@
 # Vazifalar (Tasks)
 
-## 🔴 Yuqori Prioritet
+## 🔴 Yuqori Prioritet — Siz bajarishingiz kerak
 
 - [ ] **TASK-001**: MongoDB Atlas bepul klaster yaratish va `MONGODB_URI` olish
-  - Atlas.mongodb.com saytiga kiring
-  - M0 Free klaster yarating
-  - Connection string oling va `.env` fayliga qo'ying
+  1. https://atlas.mongodb.com saytiga boring
+  2. "Build a Database" → **M0 Free** tanlang
+  3. Region: **AWS / Frankfurt** (yaqin server)
+  4. "Connect" → "Connect your application" → connection string oling
+  5. `.env` faylida `MONGODB_URI=` ni yangilang
+  6. Netlify dashboard'da ham `MONGODB_URI` env var o'rnating
 
 - [ ] **TASK-002**: Netlify saytini bog'lash
-  - netlify.com'da yangi sayt yarating
-  - GitHub repo bilan bog'lang (`https://github.com/bzuf5555/bzuf-avto.git`)
-  - Environment variables (`BOT_TOKEN`, `MONGODB_URI`) Netlify dashboard'da o'rnating
+  1. https://netlify.com → "Add new site" → "Import an existing project"
+  2. GitHub → `bzuf5555/bzuf-avto` repo tanlang
+  3. Build command: `npm install` | Publish dir: `public`
+  4. Environment Variables qo'shing:
+     - `BOT_TOKEN` = `8943535032:AAHIyPXvmNUUFlB391k61DGQOHuDjpXMnNI`
+     - `MONGODB_URI` = (TASK-001 dan olingan)
+     - `NODE_ENV` = `production`
+     - `ENCRYPTION_KEY` = (32 belgili ixtiyoriy kalit)
+  5. Deploy tugmasini bosing
 
 - [ ] **TASK-003**: Telegram Webhook o'rnatish
-  - Deploy bo'lgandan keyin quyidagi URL'ga so'rov yuboring:
+  - TASK-001 va TASK-002 tayyor bo'lgandan keyin terminalda:
   ```
-  https://api.telegram.org/bot<BOT_TOKEN>/setWebhook?url=https://<NETLIFY_URL>/.netlify/functions/bot
+  node scripts/setup.js
   ```
+  - Yoki terminal ichida: `! node scripts/setup.js`
 
-- [ ] **TASK-004**: Real API integratsiya
-  - e.jarima.uz API kaliti olish
-  - soliq.uz API kaliti olish
-  - my.gov.uz developer portaliga ro'yxatdan o'tish
+- [ ] **TASK-004**: Real API integratsiya (ixtiyoriy — hozir mock ishlaydi)
+  - e.jarima.uz → API kaliti olish
+  - `.env` da `JARIMA_API_KEY` ga yozing
+  - Netlify dashboard'da ham yangilang
 
 ## 🟡 O'rta Prioritet
 
-- [ ] **TASK-005**: Rate limiting sozlash
-  - Foydalanuvchi boshiga soatiga 20 so'rov chegarasi
-  - Spamdan himoya qilish
+- [ ] **TASK-009**: Ko'p til qo'llab-quvvatlash (Rus tili)
+- [ ] **TASK-010**: To'lov integratsiyasi (Click/Payme)
+- [ ] **TASK-011**: Bir nechta raqamni bir vaqtda tekshirish
 
-- [ ] **TASK-006**: Admin panel buyruqlari
-  - `/stats` — bot statistikasi
-  - `/broadcast` — barcha foydalanuvchilarga xabar yuborish
-  - `/users` — foydalanuvchilar ro'yxati
+## 📋 Qolgan Texnik Vazifalar
 
-- [ ] **TASK-007**: So'rov tarixi funksionalligi
-  - Foydalanuvchi o'z so'rovlar tarixini ko'rishi
-  - `/history` buyrug'i
-
-- [ ] **TASK-008**: Notifikatsiyalar
-  - Texosmotr muddati yaqinlashganda eslatma
-  - Yangi jarima qo'shilganda xabar
-
-## 🟢 Past Prioritet
-
-- [ ] **TASK-009**: Ko'p til qo'llab-quvvatlash
-  - O'zbek (asosiy)
-  - Rus tili
-
-- [ ] **TASK-010**: To'lov integratsiyasi (kelajak uchun)
-  - Premium rejim uchun Click yoki Payme
-
-- [ ] **TASK-011**: Avtomobil solishtirish funksiyasi
-  - Bir nechta davlat raqamini bir vaqtda tekshirish
-
-## 📋 Texnik Qarzdorliklar
-
-- [ ] **TECH-001**: API response keshini optimallashtrish
-- [ ] **TECH-002**: Serverless cold start vaqtini kamaytirish
-- [ ] **TECH-003**: MongoDB indexlar optimallashtirish
-- [ ] **TECH-004**: Error monitoring (Sentry yoki o'xshash bepul servis)
+- [ ] **TECH-002**: Cold start optimallashtirish (qisman bajarildi)
 
 ---
 *Fayl yangilangan: 2026-05-20*

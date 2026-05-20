@@ -31,7 +31,9 @@ const querySchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now, index: true },
 });
 
-querySchema.index({ telegramId: 1, createdAt: -1 });
+// TECH-003: Compound indexes — tez-tez ishlatiladigan so'rovlar uchun
+querySchema.index({ telegramId: 1, status: 1, createdAt: -1 });
 querySchema.index({ plateNumber: 1, createdAt: -1 });
+querySchema.index({ status: 1, createdAt: -1 }); // stats buyrug'i uchun
 
 module.exports = mongoose.model('Query', querySchema);

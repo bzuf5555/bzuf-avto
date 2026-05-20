@@ -11,6 +11,10 @@
   node_bundler = "esbuild"
   included_files = ["src/**"]
 
+# TASK-008: Kunlik eslatma — har kuni 09:00 UTC = 14:00 Toshkent vaqti
+[functions."notifications"]
+  schedule = "0 9 * * *"
+
 [[headers]]
   for = "/.netlify/functions/*"
   [headers.values]

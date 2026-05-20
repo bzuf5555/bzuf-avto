@@ -20,7 +20,10 @@ bot.use(rateLimiter);
 bot.start(commandHandler.start);
 bot.help(commandHandler.help);
 bot.command('history', commandHandler.history);
+bot.command('eslatma', commandHandler.eslatma);
 bot.command('stats', commandHandler.stats);
+bot.command('users', commandHandler.users);
+bot.command('broadcast', commandHandler.broadcast);
 
 bot.on('text', messageHandler.handleText);
 bot.on('callback_query', callbackHandler.handleCallback);

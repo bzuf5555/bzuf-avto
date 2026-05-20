@@ -21,4 +21,13 @@ const logger = winston.createLogger({
   exitOnError: false,
 });
 
+// TECH-004: Tutilmagan xatolarni log qilish
+process.on('unhandledRejection', (reason) => {
+  logger.error('UnhandledRejection:', reason instanceof Error ? reason : new Error(String(reason)));
+});
+
+process.on('uncaughtException', (err) => {
+  logger.error('UncaughtException:', err);
+});
+
 module.exports = logger;
