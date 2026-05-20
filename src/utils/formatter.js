@@ -99,7 +99,7 @@ function formatTonirovka(tonirovkaData, lang = 'uz') {
   const expiry = new Date(tonirovkaData.expiryDate);
   const daysLeft = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
 
-  text += `📅 ${t('tonirovkaTitle', lang).replace(/[^A-Za-z]/g, '') ? '' : ''}${t('techExpiry', lang)}: <b>${formatDate(tonirovkaData.expiryDate)}</b>\n`;
+  text += `${t('techExpiry', lang)}: <b>${formatDate(tonirovkaData.expiryDate)}</b>\n`;
 
   if (daysLeft < 0) {
     text += t('tonirovkaExpired', lang, Math.abs(daysLeft)) + '\n';

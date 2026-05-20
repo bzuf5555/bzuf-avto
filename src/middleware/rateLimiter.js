@@ -19,11 +19,13 @@ async function rateLimiter(ctx, next) {
   if (count >= MAX_REQUESTS) {
     const ttl = requestCounts.getTtl(key);
     const minutesLeft = ttl ? Math.ceil((ttl - Date.now()) / 60000) : 60;
+    const isRu = ctx.dbUser?.languageCode?.startsWith('ru');
 
     logger.warn(`Rate limit: foydalanuvchi ${userId} cheklandi`);
     return ctx.reply(
-      `⛔ Siz soatiga ${MAX_REQUESTS} ta so'rovdan oshib ketdingiz.\n` +
-        `⏳ ${minutesLeft} daqiqadan so'ng qayta urinib ko'ring.`
+      isRu
+        ? `⛔ Вы превысили лимит ${MAX_REQUESTS} запросов в час.\n⏳ Попробуйте через ${minutesLeft} мин.`
+        : `⛔ Siz soatiga ${MAX_REQUESTS} ta so'rovdan oshib ketdingiz.\n⏳ ${minutesLeft} daqiqadan so'ng qayta urinib ko'ring.`
     ).catch(() => {});
   }
 
